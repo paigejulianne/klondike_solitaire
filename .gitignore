@@ -50,6 +50,3 @@ app.*.map.json
 
 # Windows packaging: signing secrets (never commit) + build outputs
 /dist/
-windows/packaging/*.pfx
-windows/packaging/*.cer
-windows/packaging/.pfx_pw
