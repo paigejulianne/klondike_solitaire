@@ -1,3 +1,49 @@
+# Installing the APK on your own Android devices from your PC
+
+You don't need the Play Store to try the app on your own phone/tablet — you can
+install the APK directly ("sideloading"). Two ways to do it from your PC:
+
+## Option A: USB cable + adb (fastest, no file transfer needed)
+
+1. **On the phone/tablet:** enable Developer Options (Settings → About phone →
+   tap "Build number" 7 times), then turn on **USB debugging** inside the new
+   Developer Options menu.
+2. **Plug the device into your PC** with a USB cable. A "Allow USB debugging?"
+   prompt appears on the device — tap **Allow**.
+3. **On your PC**, open a terminal where `adb` is on your PATH (it ships with
+   the Android SDK, e.g. `%LOCALAPPDATA%\Android\sdk\platform-tools\adb.exe`),
+   confirm the device is detected, then install:
+   ```sh
+   adb devices
+   # should list your device as "device" (not "unauthorized")
+
+   adb install -r build\app\outputs\flutter-apk\app-release.apk
+   ```
+   `-r` allows reinstalling over a previous copy (e.g. after rebuilding).
+4. The app appears in the device's app drawer as **Klondike Solitaire** — no
+   further action needed. (If you don't have a release APK built yet, run
+   `flutter build apk --release` first — see below.)
+
+To install on **multiple devices** at once, plug them all in and target one at
+a time: `adb devices` to list serials, then `adb -s <serial> install -r <apk>`.
+
+## Option B: Copy the file to the device (no cable/adb required)
+
+1. Build the APK: `flutter build apk --release` → produces
+   `build\app\outputs\flutter-apk\app-release.apk`.
+2. Copy that file to the device any way you like (email it to yourself, upload
+   to Google Drive/Dropbox and download on-device, or drag-and-drop over
+   USB in File Explorer).
+3. **On the device**, open the file (e.g. from Downloads or the Files app).
+   Android will ask to allow installs from that source ("Install unknown apps")
+   the first time — allow it, then tap **Install**.
+
+Either way, since the APK is signed with your own upload key (see below), you
+can reinstall updates over it later without uninstalling first — just repeat
+the same steps with a newly built APK.
+
+---
+
 # Publishing Klondike Solitaire to the Google Play Store
 
 ## ⚠️ Back up your signing key — this is critical

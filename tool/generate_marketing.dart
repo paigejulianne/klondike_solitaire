@@ -8,7 +8,6 @@
 //   phone_1.png .. phone_N.png   framed phone screenshots  (from assets/store/raw/phone_*.png)
 //   tablet_1.png .. tablet_N.png framed tablet screenshots (from assets/store/raw/tablet_*.png)
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/game_state.dart';
 import 'game_board.dart';
+import 'win_celebration.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -12,7 +13,6 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final GameState gameState = GameState();
-  bool _winDialogShown = false;
 
   @override
   void initState() {
@@ -27,37 +27,9 @@ class _GameScreenState extends State<GameScreen> {
     super.dispose();
   }
 
-  void _onGameChanged() {
-    setState(() {});
-    if (gameState.won && !_winDialogShown) {
-      _winDialogShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _showWinDialog());
-    }
-  }
+  void _onGameChanged() => setState(() {});
 
-  void _newGame() {
-    _winDialogShown = false;
-    gameState.newGame();
-  }
-
-  void _showWinDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('You Win!'),
-        content: Text('Solved in ${gameState.moves} moves.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _newGame();
-            },
-            child: const Text('New Game'),
-          ),
-        ],
-      ),
-    );
-  }
+  void _newGame() => gameState.newGame();
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +65,14 @@ class _GameScreenState extends State<GameScreen> {
           ),
         ],
       ),
-      body: SafeArea(child: GameBoard(gameState: gameState)),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            GameBoard(gameState: gameState),
+            if (gameState.won) WinCelebration(moves: gameState.moves, onNewGame: _newGame),
+          ],
+        ),
+      ),
     );
   }
 }
