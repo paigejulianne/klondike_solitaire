@@ -47,3 +47,9 @@ app.*.map.json
 # Claude Code local runtime files (keep local, not shared)
 .claude/settings.local.json
 .claude/*.lock
+
+# Windows packaging: signing secrets (never commit) + build outputs
+/dist/
+windows/packaging/*.pfx
+windows/packaging/*.cer
+windows/packaging/.pfx_pw

@@ -59,18 +59,68 @@ is the **versionCode** and must increase every upload, e.g. `1.0.1+2`.
    above is the *upload* key.
 4. Complete the required declarations: privacy policy, data safety, content
    rating questionnaire, target audience, ads (this app has none).
-5. **Store listing** assets you'll need to provide:
-   - App icon 512×512: `assets/icon/play_store_512.png` (already generated)
-   - Feature graphic 1024×500 (not yet created — tell me if you want one)
-   - At least 2 phone screenshots and, ideally, tablet screenshots
-     (you can capture these from the running app)
+5. **Store listing** assets (all generated, in `assets/store/`):
+   - App icon 512×512: `assets/icon/play_store_512.png`
+   - Feature graphic 1024×500: `assets/store/feature_graphic.png`
+   - Phone screenshots: `assets/store/phone_1.png` … `phone_3.png` (1080×1920)
+   - Tablet screenshots: `assets/store/tablet_1.png`, `tablet_2.png` (1920×1200)
 6. **Production** (or start with Internal testing) → **Create release** →
    upload `app-release.aab` → review → roll out.
 
-## Regenerating the app icon
+## Regenerating the app icon and store assets
 
-The icon is generated from vector code, no image editor needed:
+Everything is generated from vector code / device captures — no image editor:
 ```sh
-flutter test tool/generate_app_icon.dart   # re-renders assets/icon/*.png
-dart run flutter_launcher_icons             # regenerates all launcher densities
+flutter test tool/generate_app_icon.dart    # re-renders assets/icon/*.png
+dart run flutter_launcher_icons              # regenerates all launcher densities
+flutter test tool/generate_marketing.dart    # feature graphic + framed screenshots
 ```
+The framed store screenshots are built from raw captures in `assets/store/raw/`.
+Replace those raw PNGs and re-run the marketing generator to refresh them.
+
+---
+
+# Distributing the Windows app
+
+Two packages are produced in `dist/windows/` (git-ignored build outputs):
+
+| File | Use |
+|---|---|
+| `KlondikeSolitaire-1.0.0-windows-x64-portable.zip` | **Portable** — unzip and run `klondike_solitaire.exe`. No install, no prerequisites (the VC++ runtime is bundled). Easiest to share. |
+| `KlondikeSolitaire-1.0.0-x64.msix` | **Installer** — installs the app with a Start Menu entry and an uninstaller. |
+| `TRUST-THIS-CERT-FIRST.cer` | The certificate that signs the MSIX (see below). |
+
+## Installing the MSIX (self-signed)
+
+The MSIX is signed with a **self-signed** certificate, so Windows won't trust it
+until that certificate is installed. On the target PC (one-time):
+
+1. Right-click `TRUST-THIS-CERT-FIRST.cer` → **Install Certificate**.
+2. Choose **Local Machine** → **Place all certificates in the following store**
+   → **Trusted People** → Finish (requires admin).
+3. Double-click the `.msix` → **Install**.
+
+For public distribution without this trust step, sign the MSIX with a real
+**code-signing certificate** from a CA (e.g. DigiCert, Sectigo) instead of the
+self-signed one.
+
+## Rebuilding the Windows packages
+
+```sh
+flutter build windows --release
+```
+Then repackage. The MSIX config lives in `pubspec.yaml` under `msix_config`.
+The signing certificate is generated locally and **git-ignored**
+(`windows/packaging/klondike-selfsign.pfx` + password in `.pfx_pw`). To recreate
+it (PowerShell):
+```powershell
+$cert = New-SelfSignedCertificate -Type Custom -Subject "CN=Paige Julianne" `
+  -KeyUsage DigitalSignature -CertStoreLocation "Cert:\CurrentUser\My" `
+  -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3") -NotAfter (Get-Date).AddYears(10)
+```
+Pack with the Windows SDK's `makeappx.exe pack` and sign with `signtool.exe sign`
+(the bundled `msix` tool's packer fails on this machine with a VC++ SxS error, so
+the SDK tools are used directly).
+
+⚠️ Like the Android keystore, **back up the `.pfx` and its password** if you want
+future MSIX updates to be signed by the same identity.
