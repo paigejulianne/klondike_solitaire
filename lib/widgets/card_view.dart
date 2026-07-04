@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../models/app_theme.dart';
 import '../models/card.dart';
+import 'app_theme_scope.dart';
 
 class CardView extends StatelessWidget {
   final PlayingCard? card;
@@ -9,6 +11,7 @@ class CardView extends StatelessWidget {
   final bool selected;
   final bool isEmptySlot;
   final IconData? emptySlotIcon;
+  final CardBackStyle? backStyleOverride;
 
   const CardView({
     super.key,
@@ -18,6 +21,7 @@ class CardView extends StatelessWidget {
     this.selected = false,
     this.isEmptySlot = false,
     this.emptySlotIcon,
+    this.backStyleOverride,
   });
 
   @override
@@ -40,6 +44,8 @@ class CardView extends StatelessWidget {
       );
     }
 
+    final backStyle = backStyleOverride ?? AppThemeScope.of(context).cardBackStyle;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       width: width,
@@ -56,7 +62,9 @@ class CardView extends StatelessWidget {
         ],
         border: selected ? Border.all(color: Colors.amberAccent, width: 3) : null,
       ),
-      child: card!.faceUp ? _CardFace(card: card!, width: width, height: height) : _CardBack(width: width, height: height, radius: radius),
+      child: card!.faceUp
+          ? _CardFace(card: card!, width: width, height: height)
+          : _CardBack(width: width, height: height, radius: radius, style: backStyle),
     );
   }
 }
@@ -135,23 +143,63 @@ class _CardBack extends StatelessWidget {
   final double width;
   final double height;
   final double radius;
-  const _CardBack({required this.width, required this.height, required this.radius});
+  final CardBackStyle style;
+  const _CardBack({required this.width, required this.height, required this.radius, required this.style});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: Colors.white, width: width * 0.06),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.blue.shade800, Colors.blue.shade400],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white, width: width * 0.06),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: style.gradient,
+          ),
         ),
-      ),
-      child: Center(
-        child: Icon(Icons.style, color: Colors.white24, size: width * 0.45),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _DiamondLatticePainter(color: Colors.white.withValues(alpha: 0.12)),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.all(width * 0.14),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
+              ),
+              child: Icon(style.icon, color: Colors.white70, size: width * 0.3),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+/// A repeating diamond-lattice pattern, like a classic playing card back.
+class _DiamondLatticePainter extends CustomPainter {
+  final Color color;
+  const _DiamondLatticePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    const step = 12.0;
+    for (double x = -size.height; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x + size.height, size.height), paint);
+      canvas.drawLine(Offset(x, size.height), Offset(x + size.height, 0), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DiamondLatticePainter oldDelegate) => oldDelegate.color != color;
 }

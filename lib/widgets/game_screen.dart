@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/game_state.dart';
+import 'app_theme_scope.dart';
+import 'appearance_sheet.dart';
 import 'game_board.dart';
 import 'win_celebration.dart';
 
@@ -33,16 +35,21 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tableTheme = AppThemeScope.of(context).tableTheme;
     return Scaffold(
-      backgroundColor: const Color(0xFF0B6623),
       appBar: AppBar(
         title: const Text('Klondike Solitaire'),
-        backgroundColor: const Color(0xFF0A5A1F),
+        backgroundColor: tableTheme.gradient.last,
         foregroundColor: Colors.white,
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Center(child: Text('Moves: ${gameState.moves}', style: const TextStyle(color: Colors.white70))),
+          ),
+          IconButton(
+            icon: const Icon(Icons.palette_outlined),
+            tooltip: 'Appearance',
+            onPressed: () => showAppearanceSheet(context),
           ),
           PopupMenuButton<int>(
             icon: const Icon(Icons.tune),
@@ -65,12 +72,21 @@ class _GameScreenState extends State<GameScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            GameBoard(gameState: gameState),
-            if (gameState.won) WinCelebration(moves: gameState.moves, onNewGame: _newGame),
-          ],
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: tableTheme.gradient,
+          ),
+        ),
+        child: SafeArea(
+          child: Stack(
+            children: [
+              GameBoard(gameState: gameState),
+              if (gameState.won) WinCelebration(moves: gameState.moves, onNewGame: _newGame),
+            ],
+          ),
         ),
       ),
     );
