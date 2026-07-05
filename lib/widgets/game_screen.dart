@@ -33,6 +33,31 @@ class _GameScreenState extends State<GameScreen> {
 
   void _newGame() => gameState.newGame();
 
+  Future<void> _confirmNewGame() async {
+    if (gameState.moves == 0 || gameState.won) {
+      _newGame();
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Start New Game?'),
+        content: const Text('Your current game progress will be lost.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('New Game'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed ?? false) _newGame();
+  }
+
   @override
   Widget build(BuildContext context) {
     final tableTheme = AppThemeScope.of(context).tableTheme;
@@ -68,7 +93,7 @@ class _GameScreenState extends State<GameScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'New Game',
-            onPressed: _newGame,
+            onPressed: _confirmNewGame,
           ),
         ],
       ),
