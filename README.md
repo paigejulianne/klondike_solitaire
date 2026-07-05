@@ -7,6 +7,7 @@ runs natively on:
 - **Windows** (desktop)
 - **Android phones**
 - **Android tablets**
+- **Web** (Chrome, Edge, Firefox, Safari)
 
 (Apple platforms are intentionally not targeted.)
 
@@ -76,6 +77,13 @@ flutter build windows --release        # produce build\windows\x64\runner\Releas
 ```
 Requires Visual Studio with the **Desktop development with C++** workload
 (MSVC toolchain, C++ CMake tools, Windows SDK).
+
+### Web
+```sh
+flutter run -d chrome                  # run in Chrome
+flutter build web --release            # produce build\web\
+```
+The web build is fully responsive and works on mobile and desktop browsers.
 
 ### Android (phone or tablet)
 ```sh

@@ -44,6 +44,11 @@ call :build_windows
 if errorlevel 1 goto :fail_windows
 
 echo.
+echo === Building Web (release) ===
+call :build_web
+if errorlevel 1 goto :fail_web
+
+echo.
 echo === Building Android APK (release) ===
 call :build_android
 if errorlevel 1 goto :fail_android
@@ -53,8 +58,17 @@ echo ============================================================
 echo  BUILD SUCCEEDED
 echo ============================================================
 echo Windows exe: build\windows\x64\runner\Release\klondike_solitaire.exe
+echo Web build:   build\web\
 echo Android APK: build\app\outputs\flutter-apk\app-release.apk
 goto :end
+
+rem ----------------------------------------------------------------------
+rem Web build
+rem ----------------------------------------------------------------------
+:build_web
+call flutter build web --release
+if not errorlevel 1 exit /b 0
+exit /b 1
 
 rem ----------------------------------------------------------------------
 rem Windows build, with one retry if a file lock breaks the clean step.
@@ -98,6 +112,11 @@ exit /b 1
 :fail_windows
 echo.
 echo FAILED: Windows build did not succeed after retry.
+exit /b 1
+
+:fail_web
+echo.
+echo FAILED: Web build did not succeed.
 exit /b 1
 
 :fail_android
