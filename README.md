@@ -1,15 +1,7 @@
 # Klondike Solitaire
 
-A cross-platform Klondike (classic) Solitaire game built with **Flutter**, so the
-entire game — rules, rendering, and input — is a single shared Dart codebase that
-runs natively on:
-
-- **Windows** (desktop)
-- **Android phones**
-- **Android tablets**
-- **Web** (Chrome, Edge, Firefox, Safari)
-
-(Apple platforms are intentionally not targeted.)
+A Klondike (classic) Solitaire game built with **Flutter**, targeting the **Web**
+(Chrome, Edge, Firefox, Safari).
 
 ## How to play
 
@@ -70,31 +62,9 @@ flutter analyze          # static analysis (should report no issues)
 flutter test             # run the unit + smoke tests
 ```
 
-### Windows desktop
-```sh
-flutter run -d windows                 # run in debug
-flutter build windows --release        # produce build\windows\x64\runner\Release\
-```
-Requires Visual Studio with the **Desktop development with C++** workload
-(MSVC toolchain, C++ CMake tools, Windows SDK).
-
 ### Web
 ```sh
 flutter run -d chrome                  # run in Chrome
 flutter build web --release            # produce build\web\
 ```
 The web build is fully responsive and works on mobile and desktop browsers.
-
-### Android (phone or tablet)
-```sh
-flutter devices                        # list attached devices/emulators
-flutter run -d <device-id>             # build, install, and launch
-flutter build apk --release            # universal release APK -> build\app\outputs\flutter-apk\
-flutter build appbundle --release      # Play Store bundle
-```
-Requires the Android SDK + platform-tools and an accepted set of SDK licenses
-(`flutter doctor --android-licenses`).
-
-The same APK adapts its layout to phones and tablets automatically: card sizes are
-computed from the available width, and the board scrolls if a column grows taller
-than the screen.

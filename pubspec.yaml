@@ -1,5 +1,5 @@
 name: klondike_solitaire
-description: "Cross-platform Klondike Solitaire for Windows, Android, and Web."
+description: "Klondike Solitaire for the Web."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -9,13 +9,6 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # followed by an optional build number separated by a +.
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-# In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
 version: 1.0.0+1
 
 environment:
@@ -46,33 +39,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  flutter_launcher_icons: ^0.14.4
-  msix: ^3.18.0
-
-# App icon generation. Source PNGs are produced by tool/generate_app_icon.dart.
-# Regenerate launcher icons with: dart run flutter_launcher_icons
-flutter_launcher_icons:
-  image_path: "assets/icon/app_icon.png"
-  android: true
-  min_sdk_android: 21
-  adaptive_icon_background: "assets/icon/app_icon_background.png"
-  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
-  windows:
-    generate: true
-    image_path: "assets/icon/app_icon.png"
-    icon_size: 256
-
-# Windows installer packaging. Build with: dart run msix:create
-# Without a real code-signing certificate this produces a self-signed MSIX for
-# sideloading/testing (see DISTRIBUTION.md for how to trust it).
-msix_config:
-  display_name: Klondike Solitaire
-  publisher_display_name: Paige Julianne
-  publisher: CN=Paige Julianne
-  identity_name: com.paigejulianne.unitaire
-  msix_version: 1.0.0.0
-  logo_path: assets/icon/app_icon.png
-  capabilities: ""
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

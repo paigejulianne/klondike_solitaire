@@ -39,14 +39,6 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
 # Claude Code local runtime files (keep local, not shared)
 .claude/settings.local.json
 .claude/*.lock
-
-# Windows packaging: signing secrets (never commit) + build outputs
-/dist/
