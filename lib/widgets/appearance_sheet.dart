@@ -39,8 +39,9 @@ class _AppearanceSheet extends StatelessWidget {
             const SizedBox(height: 20),
             const Text('Card Back', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
               children: [
                 for (final style in CardBackStyle.values)
                   _CardBackSwatch(
@@ -53,8 +54,9 @@ class _AppearanceSheet extends StatelessWidget {
             const SizedBox(height: 24),
             const Text('Table', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
               children: [
                 for (final table in TableTheme.values)
                   _TableSwatch(

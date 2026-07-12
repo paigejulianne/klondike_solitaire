@@ -43,9 +43,10 @@
   <!-- Flutter renders into this host (see web/flutter_bootstrap.js); it fills the viewport minus the ad band. -->
   <div id="flutter_host"></div>
 
-  <!-- Ad band: reserved space at the bottom, never overlapping the game. -->
+  <!-- Ad band: reserved space at the bottom, never overlapping the game.
+       Collapsed automatically when the ad is unfilled or blocked. -->
   <div id="ad_band">
-    <ins class="adsbygoogle"
+    <ins id="ad_unit" class="adsbygoogle"
          style="display:block;"
          data-ad-client="ca-pub-0528279497359926"
          data-ad-slot="9596550305"
@@ -57,6 +58,46 @@
        crossorigin="anonymous"></script>
   <script>
     (adsbygoogle = window.adsbygoogle || []).push({});
+
+    // Hide the ad band unless the ad actually fills. AdSense sets
+    // data-ad-status="filled"/"unfilled" on the <ins>; ad blockers set
+    // nothing at all, which the timeout fallback also collapses.
+    (function () {
+      var band = document.getElementById('ad_band');
+      var unit = document.getElementById('ad_unit');
+      var settled = false;
+
+      function collapse() {
+        if (settled) return;
+        settled = true;
+        band.style.display = 'none';
+      }
+      function keep() {
+        settled = true; // ad is showing; leave the band in place
+      }
+      function evaluate() {
+        var status = unit.getAttribute('data-ad-status');
+        if (status === 'filled') { keep(); return true; }
+        if (status === 'unfilled') { collapse(); return true; }
+        return false; // not resolved yet
+      }
+
+      if (!evaluate()) {
+        var observer = new MutationObserver(function () {
+          if (evaluate()) observer.disconnect();
+        });
+        observer.observe(unit, { attributes: true, attributeFilter: ['data-ad-status'] });
+
+        // Fallback: if no "filled" status arrives (unfilled slow, or the
+        // adsbygoogle script was blocked), collapse the band.
+        setTimeout(function () {
+          if (!settled && unit.getAttribute('data-ad-status') !== 'filled') {
+            observer.disconnect();
+            collapse();
+          }
+        }, 4000);
+      }
+    })();
   </script>
 
   <script src="flutter_bootstrap.js" async></script>

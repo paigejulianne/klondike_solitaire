@@ -36,10 +36,13 @@ void main() {
     expect(find.text('Card Back'), findsOneWidget);
     expect(find.text('Table'), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Crimson'));
     await tester.tap(find.text('Crimson'));
     await tester.pumpAndSettle();
     expect(theme.cardBackStyle, CardBackStyle.crimson);
 
+    // The sheet scrolls; swatches may sit below the fold, so scroll first.
+    await tester.ensureVisible(find.text('Walnut'));
     await tester.tap(find.text('Walnut'));
     await tester.pumpAndSettle();
     expect(theme.tableTheme, TableTheme.walnut);
