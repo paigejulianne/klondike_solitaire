@@ -4,6 +4,24 @@ import '../models/app_theme.dart';
 import '../models/card.dart';
 import 'app_theme_scope.dart';
 
+/// A ring drawn around a card to say something about it: a soft one for
+/// "this is a legal drop target", a bright one for "you are hovering here",
+/// amber for a hint.
+@immutable
+class CardAccent {
+  final Color color;
+  final double width;
+  final double glow;
+
+  const CardAccent({required this.color, this.width = 2, this.glow = 0});
+
+  static const validTarget =
+      CardAccent(color: Color(0xAA69F0AE), width: 2.5, glow: 8);
+  static const hoverTarget =
+      CardAccent(color: Color(0xFF69F0AE), width: 4, glow: 20);
+  static const hint = CardAccent(color: Color(0xFFFFD54F), width: 4, glow: 18);
+}
+
 class CardView extends StatelessWidget {
   final PlayingCard? card;
   final double width;
@@ -12,6 +30,12 @@ class CardView extends StatelessWidget {
   final bool isEmptySlot;
   final IconData? emptySlotIcon;
   final CardBackStyle? backStyleOverride;
+  final CardAccent? accent;
+
+  /// Forces the face or back to be drawn regardless of the card's own state.
+  /// Used by the flip animation to show the old side through the first half
+  /// of the turn.
+  final bool? faceUpOverride;
 
   const CardView({
     super.key,
@@ -22,19 +46,37 @@ class CardView extends StatelessWidget {
     this.isEmptySlot = false,
     this.emptySlotIcon,
     this.backStyleOverride,
+    this.accent,
+    this.faceUpOverride,
   });
 
   @override
   Widget build(BuildContext context) {
     final radius = width * 0.09;
+    final accent = this.accent;
+
     if (card == null) {
       return Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(radius),
-          border: Border.all(color: Colors.white24, width: 1.5),
-          color: Colors.white.withValues(alpha: 0.06),
+          border: Border.all(
+            color: accent?.color ?? Colors.white24,
+            width: accent?.width ?? 1.5,
+          ),
+          color: accent == null
+              ? Colors.white.withValues(alpha: 0.06)
+              : accent.color.withValues(alpha: 0.16),
+          boxShadow: accent == null || accent.glow == 0
+              ? null
+              : [
+                  BoxShadow(
+                    color: accent.color.withValues(alpha: 0.55),
+                    blurRadius: accent.glow,
+                    spreadRadius: accent.glow * 0.15,
+                  ),
+                ],
         ),
         child: emptySlotIcon == null
             ? null
@@ -45,12 +87,12 @@ class CardView extends StatelessWidget {
     }
 
     final backStyle = backStyleOverride ?? AppThemeScope.of(context).cardBackStyle;
+    final showFace = faceUpOverride ?? card!.faceUp;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       width: width,
       height: height,
-      transform: selected ? (Matrix4.identity()..translateByDouble(0.0, -8.0, 0.0, 1.0)) : Matrix4.identity(),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius),
         boxShadow: [
@@ -59,10 +101,20 @@ class CardView extends StatelessWidget {
             blurRadius: selected ? 8 : 3,
             offset: const Offset(1, 2),
           ),
+          if (accent != null && accent.glow > 0)
+            BoxShadow(
+              color: accent.color.withValues(alpha: 0.7),
+              blurRadius: accent.glow,
+              spreadRadius: accent.glow * 0.15,
+            ),
         ],
-        border: selected ? Border.all(color: Colors.amberAccent, width: 3) : null,
+        border: accent != null
+            ? Border.all(color: accent.color, width: accent.width)
+            : selected
+                ? Border.all(color: Colors.amberAccent, width: 3)
+                : null,
       ),
-      child: card!.faceUp
+      child: showFace
           ? _CardFace(card: card!, width: width, height: height)
           : _CardBack(width: width, height: height, radius: radius, style: backStyle),
     );

@@ -13,7 +13,17 @@ class WinCelebration extends StatefulWidget {
   final int moves;
   final VoidCallback onNewGame;
 
-  const WinCelebration({super.key, required this.moves, required this.onNewGame});
+  /// Optional extras shown under the move count when the screen has them.
+  final Duration? elapsed;
+  final int? score;
+
+  const WinCelebration({
+    super.key,
+    required this.moves,
+    required this.onNewGame,
+    this.elapsed,
+    this.score,
+  });
 
   @override
   State<WinCelebration> createState() => _WinCelebrationState();
@@ -149,7 +159,12 @@ class _WinCelebrationState extends State<WinCelebration> with SingleTickerProvid
                 child: AnimatedOpacity(
                   opacity: _showPanel ? 1 : 0,
                   duration: const Duration(milliseconds: 300),
-                  child: _WinPanel(moves: widget.moves, onNewGame: widget.onNewGame),
+                  child: _WinPanel(
+                    moves: widget.moves,
+                    elapsed: widget.elapsed,
+                    score: widget.score,
+                    onNewGame: widget.onNewGame,
+                  ),
                 ),
               ),
             ),
@@ -162,9 +177,22 @@ class _WinCelebrationState extends State<WinCelebration> with SingleTickerProvid
 
 class _WinPanel extends StatelessWidget {
   final int moves;
+  final Duration? elapsed;
+  final int? score;
   final VoidCallback onNewGame;
 
-  const _WinPanel({required this.moves, required this.onNewGame});
+  const _WinPanel({
+    required this.moves,
+    required this.onNewGame,
+    this.elapsed,
+    this.score,
+  });
+
+  static String _formatDuration(Duration d) {
+    final minutes = d.inMinutes.toString().padLeft(2, '0');
+    final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -188,6 +216,16 @@ class _WinPanel extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text('Solved in $moves moves', style: const TextStyle(fontSize: 16, color: Colors.black54)),
+            if (elapsed != null || score != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                [
+                  if (elapsed != null) 'Time ${_formatDuration(elapsed!)}',
+                  if (score != null) 'Score $score',
+                ].join('  ·  '),
+                style: const TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+            ],
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: onNewGame,
