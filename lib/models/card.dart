@@ -50,8 +50,32 @@ class PlayingCard {
 
   PlayingCard copy() => PlayingCard(suit: suit, rank: rank, faceUp: faceUp);
 
+  /// Packs the card into a single int for the auto-save payload.
+  int toCode() => suit.index * 100 + rank * 2 + (faceUp ? 1 : 0);
+
   @override
   String toString() => '$rankLabel${suit.symbol}${faceUp ? "" : "(down)"}';
+}
+
+extension PlayingCardCodec on PlayingCard {
+  /// Inverse of [PlayingCard.toCode]. Throws on out-of-range input so a
+  /// corrupt save is rejected rather than producing an impossible deck.
+  static PlayingCard fromCode(int code) {
+    final suitIndex = code ~/ 100;
+    final rest = code % 100;
+    final rank = rest ~/ 2;
+    if (suitIndex < 0 || suitIndex >= Suit.values.length) {
+      throw ArgumentError('bad suit in card code $code');
+    }
+    if (rank < 1 || rank > 13) {
+      throw ArgumentError('bad rank in card code $code');
+    }
+    return PlayingCard(
+      suit: Suit.values[suitIndex],
+      rank: rank,
+      faceUp: rest.isOdd,
+    );
+  }
 }
 
 List<PlayingCard> createShuffledDeck([int? seed]) {
